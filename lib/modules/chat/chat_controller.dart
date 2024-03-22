@@ -8,18 +8,24 @@ class ChatController extends GetxController {
   RxList<ChatMessage> get messages => UserService.to.messages;
 
   final textCntrl = TextEditingController();
+  final scrollCntrl = ScrollController();
 
   @override
   void onInit() {
+    messages.listen((p0) async {
+      var max = scrollCntrl.position.maxScrollExtent;
+      if (scrollCntrl.offset + 100 >= max) {
+        await Future.delayed(const Duration(microseconds: 300));
+        scrollCntrl.jumpTo(max);
+      }
+    });
     super.onInit();
   }
-  // bool itsMe(String clientId) {
-
-  // }
 
   void sendMessage() {
     var message = textCntrl.text;
     SocketService.to.sendMessageToChat(message);
+    textCntrl.text = '';
   }
 
   void disconnect() {
